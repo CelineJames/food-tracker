@@ -4,11 +4,11 @@ This was a final capstone project for a javascript course.
 
 The project keeps track of daily calories intake, based on provided information of meal type and measurement of carbs, protein and fat.
 
-The project implements a graphical representation of data with the help of an external library, [Chart.js] (https://www.chartjs.org/docs/2.9.4/).
+The project implements a graphical representation of data with the help of an external library, [Chart.js](https://www.chartjs.org/docs/2.9.4/).
 
 The project implements a delete button that takes off each cards from the screen but upon refresh it returns to the screen again, and this is due to some limitation of the API that was provided and used.
 
-## Chalenges 
+## Challenges 
 
 I faced some challenges working with this particular API, due to some restrictions,
 - The values of the API were not editable, i.e the food entries could not be changed or personalised.
