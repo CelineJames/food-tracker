@@ -3,7 +3,7 @@ import { capitalize, calculateCalories } from "./helpers.js";
 import AppData from "./app-data.js";
 
 const API = new FetchWrapper(
-  "https://firestore.googleapis.com/v1/projects/jsdemo2-3f387/databases/(default)/documents/new"
+  "https://firestore.googleapis.com/v1/projects/jsdemo2-3f387/databases/(default)/documents/final"
 );
 
 const appData = new AppData();

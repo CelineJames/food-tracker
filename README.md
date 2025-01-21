@@ -2,7 +2,7 @@
 
 This was a final capstone project for a javascript course.
 
-The project keeps track of daily calories intake, based on provided information of meal type and measurement of carbs, protein and fat.
+The project keeps track of toatal daily calories intake, based on provided information of meal type and measurement of carbs, protein and fat.
 
 The project implements a graphical representation of data with the help of an external library, [Chart.js](https://www.chartjs.org/docs/2.9.4/).
 
