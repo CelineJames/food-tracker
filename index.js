@@ -2,10 +2,8 @@ import FetchWrapper from "./fetch-wrapper.js";
 import { capitalize, calculateCalories } from "./helpers.js";
 import AppData from "./app-data.js";
 
-// Chart.js is now included via CDN, so no need to import it here
-
 const API = new FetchWrapper(
-  "https://firestore.googleapis.com/v1/projects/jsdemo2-3f387/databases/(default)/documents/kaytorah"
+  "https://firestore.googleapis.com/v1/projects/jsdemo2-3f387/databases/(default)/documents/new"
 );
 
 const appData = new AppData();
@@ -19,14 +17,14 @@ const protein = document.querySelector("#create-protein");
 const fat = document.querySelector("#create-fat");
 const foodList = document.querySelector("#food-list");
 const calories = document.querySelector("#total-calories");
-const deleteBtns = document.querySelectorAll(".delete-btn");
+
 
 // Function to display food entry in the list
-const displayEntry = (name, carbs, protein, fat) => {
-  appData.addFood(Number(carbs), Number(protein), Number(fat));
+const displayEntry = (id, name, carbs, protein, fat) => {
+  // appData.addFood(carbs, protein, fat);
   foodList.insertAdjacentHTML(
     "beforeend",
-    `<li class="card">
+    `<li class="card" id="${id}">
         <div>
           <h3 class="name">${capitalize(name)}</h3>
           <div class="calories">${calculateCalories(
@@ -43,53 +41,6 @@ const displayEntry = (name, carbs, protein, fat) => {
         </div>
       </li>`
   );
-};
-
-// Handle delete button click
-deleteBtns.forEach((btn) => {
-  btn.addEventListener("click", (event) => {
-    const entry = event.target.closest(".card");
-    const id = entry.dataset.id;
-    deleteEntry(id);
-  });
-});
-
-const deleteEntry = (id) => {
-  API.delete(`/${id}`)
-    .then((response) => {
-      if (response.error) {
-        console.error("Error deleting entry:", response.error.message);
-        alert("Failed to delete the entry from the API.");
-        return;
-      }
-
-      const entryElement = foodList.querySelector(`.card[data-id="${id}"]`);
-      if (entryElement) {
-        const carbs = parseInt(
-          entryElement.querySelector(".carbs .value").textContent
-        );
-        const protein = parseInt(
-          entryElement.querySelector(".protein .value").textContent
-        );
-        const fat = parseInt(
-          entryElement.querySelector(".fat .value").textContent
-        );
-
-        // Update appData by removing the food item
-        appData.removeFood(carbs, protein, fat);
-
-        // Remove from DOM
-        entryElement.remove();
-      }
-
-      // Re-render chart and calorie count
-      render();
-      alert("Entry deleted successfully.");
-    })
-    .catch((error) => {
-      console.error("Error deleting entry:", error);
-      alert("An error occurred while deleting the entry.");
-    });
 };
 
 // Handle form submission
@@ -110,7 +61,14 @@ form.addEventListener("submit", (event) => {
       return;
     }
 
-    displayEntry(name.value, carbs.value, protein.value, fat.value);
+    // Use addFood to assign the ID and add the food entry
+    appData.addFood(carbs.value, protein.value, fat.value);
+
+    // Get the ID of the last added food item
+    const lastItem = appData.food[appData.food.length - 1];
+    const id = lastItem.id;
+
+    displayEntry(id, name.value, carbs.value, protein.value, fat.value);
     render();
 
     // Reset form fields
@@ -121,6 +79,10 @@ form.addEventListener("submit", (event) => {
   });
 });
 
+
+
+
+
 // Initialize app by fetching saved entries and rendering them
 const init = () => {
   API.get("/?pageSize=10").then((data) => {
@@ -128,7 +90,19 @@ const init = () => {
     data.documents?.forEach((document) => {
       const field = document.fields;
 
+       appData.addFood(
+         field.carbs.integerValue,
+         field.protein.integerValue,
+         field.fat.integerValue
+       );
+
+       // Get the ID of the last added food item
+       const lastItem = appData.food[appData.food.length - 1];
+       const id = lastItem.id;
+
+      // Display the food entry with the new ID
       displayEntry(
+        id,
         field.name.stringValue,
         field.carbs.integerValue,
         field.protein.integerValue,
@@ -138,6 +112,34 @@ const init = () => {
     render();
   });
 };
+
+
+
+foodList.addEventListener("click", (event) => {
+  if (event.target.classList.contains("delete-btn")) {
+    const listItem = event.target.closest("li.card");
+    const id = listItem.id;
+
+    // Remove the item from the API
+    API.delete(`/${id}`)
+      .then((data) => {
+        console.log("Item deleted from API:", data);
+
+        // Remove the item from the DOM
+        listItem.remove();
+
+        // Remove the item from the appData.food arr
+        appData.removeFood(id);
+
+        // Update the UI
+        render();
+      })
+      .catch((error) => {
+        console.error("Error deleting item from API:", error);
+      });
+  }
+});
+
 
 // Render the bar chart
 let chartInstance = null;
@@ -190,3 +192,5 @@ const render = () => {
 
 // Start the application
 init();
+
+

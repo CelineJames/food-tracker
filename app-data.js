@@ -6,29 +6,36 @@ export default class AppData {
   }
 
   addFood(carbs, protein, fat) {
+    // Ensure the food array exists
+    if (!this.food) {
+      this.food = [];
+    }
+
+    // Generate the next unique ID
+    const id = this.food.length + 1;
+
+    // Add the new food item
     this.food.push({
+      id: id,
       carbs: Number.parseInt(carbs, 10),
       protein: Number.parseInt(protein, 10),
       fat: Number.parseInt(fat, 10),
     });
+
+    // Log the updated food array
+    console.log(this.food);
   }
 
-  removeFood(carbs, protein, fat) {
-    // Find the index of the food item to remove
-    const index = this.food.findIndex(
-      (item) =>
-        item.carbs === Number.parseInt(carbs, 10) &&
-        item.protein === Number.parseInt(protein, 10) &&
-        item.fat === Number.parseInt(fat, 10)
-    );
-
-    // If the food item exists, remove it
+  removeFood(id) {
+    const numericId = Number(id); // Convert string to number
+    const index = this.food.findIndex((item) => item.id === numericId);
     if (index !== -1) {
       this.food.splice(index, 1);
     } else {
       console.warn("Food item not found in the list.");
     }
   }
+  
 
   getTotalCarbs() {
     return this.food.reduce((total, current) => {
@@ -49,10 +56,10 @@ export default class AppData {
   }
 
   getTotalCalories() {
-    return this.food.reduce((total, current) => {
-      return (
-        total + calculateCalories(current.carbs, current.protein, current.fat)
-      );
-    }, 0);
+    return (
+      this.getTotalCarbs() * 4 +
+      this.getTotalProtein() * 4 +
+      this.getTotalFat() * 9
+    );
   }
 }
